@@ -1,0 +1,32 @@
+---
+version: "1.0"
+
+services:
+  reverse-proxy:
+    image: ${REVERSE_PROXY_REPOSITORY}:${REVERSE_PROXY_VERSION}
+    ports:
+      - ${REVERSE_PROXY_PORT}:8080
+    command: /usr/local/apache2/init/init_index_html.sh
+#    depends_on:
+#      enterprisesearch:
+#        condition: service_healthy
+    environment:
+      - NAMESPACE=''
+      - ENTERPRISE_SEARCH_INTERNAL_URL=${enterprise_search_internal_url}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTIC_USERNAME=elastic
+    volumes:
+      - ./config.d/atlas.conf:/usr/local/apache2/conf.d/atlas.conf
+      - ./config.d/atlas2.conf:/usr/local/apache2/conf.d/atlas2.conf
+      - ./config.d/auth.conf:/usr/local/apache2/conf.d/auth.conf
+      - ./config.d/elastic.conf:/usr/local/apache2/conf.d/elastic.conf
+      - ./config.d/flink.conf:/usr/local/apache2/conf.d/flink.conf
+      - ./config.d/kafka-ui.conf:/usr/local/apache2/conf.d/kafka-ui.conf
+
+  keycloak:
+    image:
+
+
+volumes:
+  reverse-proxy:
+    driver: local
