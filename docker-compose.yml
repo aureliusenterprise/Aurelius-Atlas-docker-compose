@@ -5,26 +5,45 @@ services:
   reverse-proxy:
     image: ${REVERSE_PROXY_REPOSITORY}:${REVERSE_PROXY_VERSION}
     ports:
-      - ${REVERSE_PROXY_PORT}:8080
-    command: /usr/local/apache2/init/init_index_html.sh
+     - ${REVERSE_PROXY_PORT}:80
+    #command: /usr/local/apache2/init/init_index_html.sh
 #    depends_on:
 #      enterprisesearch:
 #        condition: service_healthy
-    environment:
-      - NAMESPACE=''
-      - ENTERPRISE_SEARCH_INTERNAL_URL=${enterprise_search_internal_url}
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - ELASTIC_USERNAME=elastic
+    #environment:
+    # what should the namespace be?
+    #  - NAMESPACE=''
+    #  - ENTERPRISE_SEARCH_INTERNAL_URL=${ENTERPISE_SEARCH_INTERNAL_URL}
+    #  - ELASTIC_USERNAME=${ELASTIC_USERNAME}
+    #  - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    
+    #complete
     volumes:
-      - ./config.d/atlas.conf:/usr/local/apache2/conf.d/atlas.conf
-      - ./config.d/atlas2.conf:/usr/local/apache2/conf.d/atlas2.conf
-      - ./config.d/auth.conf:/usr/local/apache2/conf.d/auth.conf
-      - ./config.d/elastic.conf:/usr/local/apache2/conf.d/elastic.conf
-      - ./config.d/flink.conf:/usr/local/apache2/conf.d/flink.conf
-      - ./config.d/kafka-ui.conf:/usr/local/apache2/conf.d/kafka-ui.conf
+    #  - ./reverse-proxy-files/config.d/atlas.conf:/usr/local/apache2/conf.d/atlas.conf
+    #  - ./reverse-proxy-files/config.d/atlas2.conf:/usr/local/apache2/conf.d/atlas2.conf
+      - ./reverse-proxy-files/config.d/auth.conf:/usr/local/apache2/conf.d/auth.conf
+    #  - ./reverse-proxy-files/config.d/elastic.conf:/usr/local/apache2/conf.d/elastic.conf
+    #  - ./reverse-proxy-files/config.d/flink.conf:/usr/local/apache2/conf.d/flink.conf
+    #  - ./reverse-proxy-files/config.d/kafka-ui.conf:/usr/local/apache2/conf.d/kafka-ui.conf
 
   keycloak:
-    image:
+    image: ${KEYCLOAK_REPOSITORY}:${KEYCLOAK_VERSION}
+    ports:
+      - ${KEYCLOAK_PORT}:8080
+    #command:
+    #  - 
+
+    environment:
+      - KEYCLOAK_USER=${KEYCLOAK_USER}
+      - KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
+      - PROXY_ADDRESS_FORWARDING=${PROXY_ADDRESS_FORWARDING}
+    #  - KEYCLOAK_IMPORT=${KEYCLOAK_IMPORT}
+    #  - KEYCLOAK_FRONTEND_URL=${KEYCLOAK_FRONTEND_URL}
+    #  - RELEASE_NAMESPACE=${RELEASE_NAMESPACE}
+    #  - RELEASE_NAME=${RELEASE_NAME}
+    
+    #volumes:
+      #mount realm.json
 
 
 volumes:
