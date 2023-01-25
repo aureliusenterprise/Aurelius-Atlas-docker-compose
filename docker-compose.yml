@@ -4,6 +4,7 @@ version: "1.0"
 services:
   reverse-proxy:
     image: ${REVERSE_PROXY_REPOSITORY}:${REVERSE_PROXY_VERSION}
+    container_name: reverse-proxy
     ports:
      - ${REVERSE_PROXY_PORT}:80
     #command: /usr/local/apache2/init/init_index_html.sh
@@ -11,13 +12,10 @@ services:
 #      enterprisesearch:
 #        condition: service_healthy
     #environment:
-    # what should the namespace be?
-    #  - NAMESPACE=''
     #  - ENTERPRISE_SEARCH_INTERNAL_URL=${ENTERPISE_SEARCH_INTERNAL_URL}
     #  - ELASTIC_USERNAME=${ELASTIC_USERNAME}
     #  - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     
-    #complete
     volumes:
     #  - ./reverse-proxy-files/config.d/atlas.conf:/usr/local/apache2/conf.d/atlas.conf
     #  - ./reverse-proxy-files/config.d/atlas2.conf:/usr/local/apache2/conf.d/atlas2.conf
@@ -28,24 +26,27 @@ services:
 
   keycloak:
     image: ${KEYCLOAK_REPOSITORY}:${KEYCLOAK_VERSION}
+    container_name: keycloak
     ports:
       - ${KEYCLOAK_PORT}:8080
-    #command:
-    #  - 
 
+    #command: /bin/bash -c /opt/jboss/tools/docker-entrypoint.sh && /bin/bash -c /tmp/init_standard_users.sh; 
+    
     environment:
       - KEYCLOAK_USER=${KEYCLOAK_USER}
       - KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
       - PROXY_ADDRESS_FORWARDING=${PROXY_ADDRESS_FORWARDING}
-    #  - KEYCLOAK_IMPORT=${KEYCLOAK_IMPORT}
-    #  - KEYCLOAK_FRONTEND_URL=${KEYCLOAK_FRONTEND_URL}
-    #  - RELEASE_NAMESPACE=${RELEASE_NAMESPACE}
-    #  - RELEASE_NAME=${RELEASE_NAME}
-    
-    #volumes:
-      #mount realm.json
+      - KEYCLOAK_IMPORT=${KEYCLOAK_IMPORT}
+      - KEYCLOAK_FRONTEND_URL=${KEYCLOAK_FRONTEND_URL}
+      - USER_ATLAS_PASSWORD=${USER_ATLAS_PASSWORD}
+      - USER_STEWARD_PASSWORD=${USER_STEWARD_PASSWORD}
+      - USER_DATA_PASSWORD=${USER_DATA_PASSWORD}
 
+    volumes:
+      - ./keycloak-stack/realm_m4i.json:/tmp/realm_m4i.json    
 
+    entrypoint: /bin/bash -c /opt/jboss/tools/docker-entrypoint.sh && /bin/bash -c /tmp/init_standard_users.sh;
+      
 volumes:
   reverse-proxy:
     driver: local
