@@ -1052,15 +1052,15 @@
       "id": "c3e97388-9983-48e4-a44f-66e3f6b6d9ea",
       "clientId": "m4i_atlas",
       "name": "Models4Insight Data Management",
-      "rootUrl": "https://localhost:8080/atlas/",
-      "adminUrl": "https://localhost:8080/auth_admin/",
+      "rootUrl": "https://127.0.0.1:8080/atlas/",
+      "adminUrl": "https://127.0.0.1:8080/auth_admin/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
         "http://127.0.0.1:9100/atlas/api/*",
-        "https://localhost:8080/*"
+        "https://127.0.0.1:8080/*"
       ],
       "webOrigins": [
         "*"
@@ -1528,17 +1528,17 @@
     {
       "id": "37634648-7e36-48b1-ba9a-b4ce06418385",
       "clientId": "m4i_kafka_ui",
-      "rootUrl": "https://localhost:8080/kafka-ui/",
-      "adminUrl": "https://localhost:8080/kafka-ui/",
+      "rootUrl": "https://127.0.0.1:8080/kafka-ui/",
+      "adminUrl": "https://127.0.0.1:8080/kafka-ui/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "https://localhost:8080/kafka-ui/*"
+        "https://127.0.0.1:8080/kafka-ui/*"
       ],
       "webOrigins": [
-        "https://localhost:8080"
+        "https://127.0.0.1:8080"
       ],
       "notBefore": 0,
       "bearerOnly": false,
@@ -1609,17 +1609,17 @@
     {
       "id": "37634648-7e36-48b1-ba9a-b4ce06418386",
       "clientId": "m4i_flink",
-      "rootUrl": "https://localhost:8080/flink/",
-      "adminUrl": "https:localhost:8080/flink/",
+      "rootUrl": "https://127.0.0.1:8080/flink/",
+      "adminUrl": "https:127.0.0.1:8080/flink/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "https:localhost:8080/flink/*"
+        "https:127.0.0.1:8080/flink/*"
       ],
       "webOrigins": [
-        "https:localhost:8080"
+        "https:127.0.0.1:8080"
       ],
       "notBefore": 0,
       "bearerOnly": false,
@@ -1692,7 +1692,7 @@
       "clientId": "m4i_platform",
       "name": "Models4Insight Platform",
       "rootUrl": "http://127.0.0.1:9100/platform/",
-      "adminUrl": "http://localhost:9100/platform/",
+      "adminUrl": "http://127.0.0.1:9100/platform/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
@@ -1701,9 +1701,9 @@
       "redirectUris": [
         "http://127.0.0.1:9100/platform/*",
         "http://127.0.0.1:9100/platform2/*",
-        "http://localhost:9100/consistency_metrics/*",
-        "http://localhost:9100/platform/*",
-        "http://localhost:9100/platform2/*",
+        "http://127.0.0.1:9100/consistency_metrics/*",
+        "http://127.0.0.1:9100/platform/*",
+        "http://127.0.0.1:9100/platform2/*",
         "http://127.0.0.1/*"
       ],
       "webOrigins": [
@@ -1834,16 +1834,16 @@
     {
       "id": "0587e7aa-a325-4873-87de-004ea70a88a3",
       "clientId": "m4i_public",
-      "rootUrl": "https:localhost:8080/",
+      "rootUrl": "https:127.0.0.1:8080/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "https://localhost:8080/*",
-        "https://localhost:8080/atlas/*",
-        "https:localhost:8080/atlas2/*",
-        "http://atlas.localhost.svc.cluster.local:21000/*"
+        "https://127.0.0.1:8080/*",
+        "https://127.0.0.1:8080/atlas/*",
+        "https:127.0.0.1:8080/atlas2/*",
+        "http://127.0.0.1:21000/*"
       ],
       "webOrigins": [
         "*"

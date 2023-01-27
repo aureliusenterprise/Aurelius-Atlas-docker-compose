@@ -6,7 +6,7 @@ services:
     image: ${REVERSE_PROXY_REPOSITORY}:${REVERSE_PROXY_VERSION}
     container_name: reverse-proxy
     ports:
-     - ${REVERSE_PROXY_PORT}:80
+      - ${REVERSE_PROXY_PORT}:80
     #command: /usr/local/apache2/init/init_index_html.sh
 #    depends_on:
 #      enterprisesearch:
@@ -18,7 +18,7 @@ services:
     
     volumes:
     #  - ./reverse-proxy-files/config.d/atlas.conf:/usr/local/apache2/conf.d/atlas.conf
-    #  - ./reverse-proxy-files/config.d/atlas2.conf:/usr/local/apache2/conf.d/atlas2.conf
+      - ./reverse-proxy-files/config.d/atlas2.conf:/usr/local/apache2/conf.d/atlas2.conf
       - ./reverse-proxy-files/config.d/auth.conf:/usr/local/apache2/conf.d/auth.conf
     #  - ./reverse-proxy-files/config.d/elastic.conf:/usr/local/apache2/conf.d/elastic.conf
     #  - ./reverse-proxy-files/config.d/flink.conf:/usr/local/apache2/conf.d/flink.conf
@@ -30,8 +30,8 @@ services:
     ports:
       - ${KEYCLOAK_PORT}:8080
 
-    #command: /bin/bash -c /opt/jboss/tools/docker-entrypoint.sh && /bin/bash -c /tmp/init_standard_users.sh; 
-    
+    #command: "nohup /tmp/init_standard_users.sh && /opt/jboss/tools/docker-entrypoint.sh" 
+     
     environment:
       - KEYCLOAK_USER=${KEYCLOAK_USER}
       - KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
@@ -45,8 +45,24 @@ services:
     volumes:
       - ./keycloak-stack/realm_m4i.json:/tmp/realm_m4i.json    
 
-    entrypoint: /bin/bash -c /opt/jboss/tools/docker-entrypoint.sh && /bin/bash -c /tmp/init_standard_users.sh;
-      
+    #entrypoint: /opt/jboss/tools/docker-entrypoint.sh && /tmp/init_standard_users.sh
+
+  atlas:
+    image: ${ATLAS_REPOSITORY}:${ATLAS_VERSION}
+    container_name: atlas
+    ports: 
+      - ${ATLAS_PORT}:21000
+    environment:
+      - ATLAS_EXTERNAL_URL=${ATLAS_EXTERNAL_URL}
+      - KEYCLOAK_SERVER_URL=${KEYCLOAK_SERVER_URL}
+      - KEYCLOAK_ATLAS_ADMIN_USERNAME=${KEYCLOAK_ATLAS_ADMIN_USERNAME}
+      - KEYCLOAK_ATLAS_ADMIN_PASSWORD=${KEYCLOAK_ATLAS_ADMIN_PASSWORD}
+    volumes:
+      - ./atlas-stack/atlas-application--properties.yaml:/opt/apache-atlas-2.2.0/conf/atlas-application.properties
+      - ./atlas-stack/keycloak-conf.json:/opt/apache-atlas-2.2.0/conf/keycloak-conf.json
+      - ./atlas-stack/atlas-simple-authz-policy.json:/opt/apache-atlas-2.2.0/conf/atlas-simple-authz-policy.json
+
+
 volumes:
   reverse-proxy:
     driver: local
