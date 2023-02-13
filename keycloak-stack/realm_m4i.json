@@ -1052,15 +1052,15 @@
       "id": "c3e97388-9983-48e4-a44f-66e3f6b6d9ea",
       "clientId": "m4i_atlas",
       "name": "Models4Insight Data Management",
-      "rootUrl": "http://127.0.0.1:8080/atlas/",
-      "adminUrl": "http://127.0.0.1:8080/auth_admin/",
+      "rootUrl": "http://127.0.0.1:8081/atlas/",
+      "adminUrl": "http://127.0.0.1:8081/auth_admin/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
         "http://127.0.0.1:9100/atlas/api/*",
-        "http://127.0.0.1:8080/*"
+        "http://127.0.0.1:8081/*"
       ],
       "webOrigins": [
         "*"
@@ -1834,16 +1834,16 @@
     {
       "id": "0587e7aa-a325-4873-87de-004ea70a88a3",
       "clientId": "m4i_public",
-      "rootUrl": "http://reverse-proxy:8081/",
+      "rootUrl": "http://127.0.0.1:8081/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "http://reverse-proxy:8081/*",
-        "http://reverse-proxy:8081/atlas/*",
-        "http://reverse-proxy:8081/atlas2/*",
-        "http://atlas:21000/*"
+        "http://127.0.0.1:8081/*",
+        "http://127.0.0.1:8081/atlas/*",
+        "http://127.0.0.1:8081/atlas2/*",
+        "http://127.0.0.1:21000/*"
       ],
       "webOrigins": [
         "*"
