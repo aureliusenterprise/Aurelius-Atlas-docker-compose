@@ -1,14 +1,14 @@
 ---
-version: "1.0"
+version: "2.0"
 
 services:
   reverse-proxy:
     image: ${REVERSE_PROXY_REPOSITORY}:${REVERSE_PROXY_VERSION}
     container_name: reverse-proxy
     #network_mode: "host" 
-    networks:
-      auth-network:
-        ipv4_address: 172.25.0.10
+    # networks:
+    #   auth-network:
+    #     ipv4_address: 172.25.0.10
     ports:
       - ${REVERSE_PROXY_PORT}:8081
 
@@ -35,10 +35,6 @@ services:
   keycloak:
     image: ${KEYCLOAK_REPOSITORY}:${KEYCLOAK_VERSION}
     container_name: keycloak
-    #network_mode: "host" 
-    networks:
-      auth-network:
-        ipv4_address: 172.25.0.11
     ports:
       - ${KEYCLOAK_PORT}:8080
 
@@ -53,8 +49,6 @@ services:
       - USER_ATLAS_PASSWORD=${USER_ATLAS_PASSWORD}
       - USER_STEWARD_PASSWORD=${USER_STEWARD_PASSWORD}
       - USER_DATA_PASSWORD=${USER_DATA_PASSWORD}
-    #  - REDIRECT_SOCKET=${REDIRECT_SOCKET}
-    #  - BIND_IP=${BIND_IP}
 
     volumes:
       - ./keycloak-stack/realm_m4i.json:/tmp/realm_m4i.json    
@@ -64,10 +58,6 @@ services:
   atlas:
     image: ${ATLAS_REPOSITORY}:${ATLAS_VERSION}
     container_name: atlas
-    #network_mode: "host"
-    networks:
-        auth-network:
-          ipv4_address: 172.25.0.12
     ports: 
       - ${ATLAS_PORT}:21000
     #  - KAFKA PORT
@@ -88,11 +78,11 @@ volumes:
   reverse-proxy:
     driver: local
 
-networks:
-  auth-network:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.25.0.0/16
-          gateway: 172.25.0.1
+# networks:
+#   auth-network:
+#     driver: bridge
+#     ipam:
+#       driver: default
+#       config:
+#         - subnet: 172.25.0.0/16
+#           gateway: 172.25.0.1
