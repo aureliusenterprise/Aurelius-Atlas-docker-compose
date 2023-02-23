@@ -108,60 +108,60 @@ services:
       -  KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=${KAFKA_TRANSACTION_STATE_LOG_MIN_ISR}
       -  KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=${KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR}
   
-  # setup:
-  #   image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
-  #   container_name: es-setup
-  #   volumes:
-  #     - certs:/usr/share/elasticsearch/config/certs
-  #   user: "0"
-  #   command: >
-  #     bash -c '
-  #       if [ x${ELASTIC_PASSWORD} == x ]; then
-  #         echo "Set the ELASTIC_PASSWORD environment variable in the .env file";
-  #         exit 1;
-  #       elif [ x${KIBANA_PASSWORD} == x ]; then
-  #         echo "Set the KIBANA_PASSWORD environment variable in the .env file";
-  #         exit 1;
-  #       fi;
-  #       if [ ! -f certs/ca.zip ]; then
-  #         echo "Creating CA";
-  #         bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
-  #         unzip config/certs/ca.zip -d config/certs;
-  #       fi;
-  #       if [ ! -f certs/certs.zip ]; then
-  #         echo "Creating certs";
-  #         echo -ne \
-  #         "instances:\n"\
-  #         "  - name: es01\n"\
-  #         "    dns:\n"\
-  #         "      - es01\n"\
-  #         "      - localhost\n"\
-  #         "    ip:\n"\
-  #         "      - 127.0.0.1\n"\
-  #         > config/certs/instances.yml;
-  #         bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
-  #         unzip config/certs/certs.zip -d config/certs;
-  #       fi;
-  #       echo "Setting file permissions"
-  #       chown -R root:root config/certs;
-  #       find . -type d -exec chmod 750 \{\} \;;
-  #       find . -type f -exec chmod 640 \{\} \;;
-  #       echo "Waiting for Elasticsearch availability";
-  #       until curl -s --cacert config/certs/ca/ca.crt https://es01:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
-  #       echo "Setting kibana_system password";
-  #       until curl -s -X POST --cacert config/certs/ca/ca.crt -u elastic:${ELASTIC_PASSWORD} -H "Content-Type: application/json" https://es01:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
-  #       echo "All done!";
-  #     '
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "[ -f config/certs/es01/es01.crt ]"]
-  #     interval: 1s
-  #     timeout: 5s
-  #     retries: 120
+  setup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    container_name: es-setup
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+    user: "0"
+    command: >
+      bash -c '
+        if [ x${ELASTIC_PASSWORD} == x ]; then
+          echo "Set the ELASTIC_PASSWORD environment variable in the .env file";
+          exit 1;
+        elif [ x${KIBANA_PASSWORD} == x ]; then
+          echo "Set the KIBANA_PASSWORD environment variable in the .env file";
+          exit 1;
+        fi;
+        if [ ! -f certs/ca.zip ]; then
+          echo "Creating CA";
+          bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
+          unzip config/certs/ca.zip -d config/certs;
+        fi;
+        if [ ! -f certs/certs.zip ]; then
+          echo "Creating certs";
+          echo -ne \
+          "instances:\n"\
+          "  - name: es01\n"\
+          "    dns:\n"\
+          "      - es01\n"\
+          "      - localhost\n"\
+          "    ip:\n"\
+          "      - 127.0.0.1\n"\
+          > config/certs/instances.yml;
+          bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
+          unzip config/certs/certs.zip -d config/certs;
+        fi;
+        echo "Setting file permissions"
+        chown -R root:root config/certs;
+        find . -type d -exec chmod 750 \{\} \;;
+        find . -type f -exec chmod 640 \{\} \;;
+        echo "Waiting for Elasticsearch availability";
+        until curl -s --cacert config/certs/ca/ca.crt https://es01:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
+        echo "Setting kibana_system password";
+        until curl -s -X POST --cacert config/certs/ca/ca.crt -u elastic:${ELASTIC_PASSWORD} -H "Content-Type: application/json" https://es01:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
+        echo "All done!";
+      '
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f config/certs/es01/es01.crt ]"]
+      interval: 1s
+      timeout: 5s
+      retries: 120
 
   es01:
-    # depends_on:
-    #   setup:
-    #     condition: service_healthy
+    depends_on:
+      setup:
+        condition: service_healthy
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     container_name: elasticsearch
     volumes:
@@ -220,6 +220,8 @@ services:
       - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
       - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
       - ENTERPRISESEARCH_HOST=http://enterprisesearch:${ENTERPRISE_SEARCH_PORT}
+      - SERVER_PUBLICBASEURL=http://127.0.0.1:8087/kibana
+      - SERVER_BASEPATH=/kibana
     mem_limit: ${MEM_LIMIT}
     healthcheck:
       test:
@@ -270,29 +272,40 @@ services:
     container_name: jobmanager
     ports:
       - ${FLINK_PORT}:8081
+      
     command: jobmanager
-    # volumes:
-    #   - ./flink-stack/config.py:/opt/apache-atlas-2.2.0/conf/atlas-application.properties
+    volumes:
+      - ./flink-stack/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
+      - ./flink-stack/log4j-console.properties:/opt/flink/conf/log4j-console.properties
+      - ./flink-stack/config.py:/opt/flink/tasks-conf/config.py
+      - ./flink-stack/credentials.py:/opt/flink/tasks-conf/credentials.py
     environment:
-      - |
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: jobmanager        
-
+      - ENTERPRISE_SEARCH_INTERNAL_URL=${ENTERPRISE_SEARCH_INTERNAL_URL}
+      - ELASTIC_USERNAME=${ELASTIC_USERNAME}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+      - KEYCLOAK_ATLAS_ADMIN_PASSWORD=${KEYCLOAK_ATLAS_ADMIN_PASSWORD}
+      - KEYCLOAK_ATLAS_STEWARD_PASSWORD=${KEYCLOAK_ATLAS_STEWARD_PASSWORD}
+      - KEYCLOAK_ATLAS_USER_USERNAME=${KEYCLOAK_ATLAS_USER_USERNAME}
+      - KEYCLOAK_ATLAS_USER_PASSWORD=${KEYCLOAK_ATLAS_USER_PASSWORD}
+      - KEYCLOAK_SERVER_URL=${KEYCLOAK_SERVER_URL}
+      - ENTERPRISE_SEARCH_EXTERNAL_URL=${ENTERPRISE_SEARCH_EXTERNAL_URL}
+      - ATLAS_EXTERNAL_URL=${ATLAS_EXTERNAL_URL}
+      # - M4I_FLINK_TASKS_BRANCH=${M4I_FLINK_TASKS_BRANCH}
+      # - M4I_FLINK_ATLAS_CORE_BRANCH=${M4I_FLINK_ATLAS_CORE_BRANCH}
+      
   taskmanager:
     image: ${FLINK_IMAGE}:${FLINK_VERSION}
     container_name: taskmanager
     depends_on:
       - jobmanager
+      - reverse-proxy
     command: taskmanager
-    scale: 1
-    environment:
-      - |
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: jobmanager
-        taskmanager.numberOfTaskSlots: 2
-
-
-
+    volumes:
+      - ./flink-stack/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
+      - ./flink-stack/log4j-console.properties:/opt/flink/conf/log4j-console.properties
+      - ./flink-stack/config.py:/opt/flink/tasks-conf/config.py
+      - ./flink-stack/credentials.py:/opt/flink/tasks-conf/credentials.py
 
 volumes:
   reverse-proxy:
