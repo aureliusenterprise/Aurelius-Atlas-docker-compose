@@ -1,8 +1,8 @@
 config = {
-    "atlas.server.url": "http://172.18.216.41:21000/api/atlas",
+    "atlas.server.url": "http://atlas:21000/api/atlas",
     "kafka.bootstrap.server.hostname": "broker",
-    "kafka.bootstrap.server.port": "9092",
-    # "kafka.consumer.group.id": "{{ .Release.Namespace }}",
+    "kafka.bootstrap.server.port": "29092",
+    "kafka.consumer.group.id": "",
     "atlas.audit.events.topic.name": "ATLAS_ENTITIES",
     "enriched.events.topic.name": "ENRICHED_ENTITIES",
     "determined.events.topic.name": "DETERMINED_CHANGE",
@@ -19,11 +19,11 @@ config = {
     # "elastic.base.endpoint" : "elastic.{{ .Release.Namespace }}.svc.cluster.local:9200/api/as/v1",
     # "elastic.search.endpoint" : "http://elastic-search-es-http.{{ .Release.Namespace }}.svc.cluster.local:9200",
     # "elastic.enterprise.search.endpoint" : "http://enterprise-search-ent-http.{{ .Release.Namespace }}.svc.cluster.local:3002",
-    "elastic.base.endpoint" : "http://172.18.216.41:8087/elastic/api/as/v1", #via reverse proxy
-    "elastic.search.endpoint" : "http://172.18.216.41:443/elastic", #reverse-proxy
-    "elastic.enterprise.search.endpoint" : "http://172.18.216.41:443/app-search", #reverse-proxy
+    "elastic.base.endpoint" : "http://172.18.125.138:8087/elastic/api/as/v1", #via reverse proxy
+    "elastic.search.endpoint" : "http://172.18.125.138:443/elastic", #reverse-proxy
+    "elastic.enterprise.search.endpoint" : "http://172.18.125.138:443/app-search", #reverse-proxy
 
-    "keycloak.server.url" : "http://172.18.216.41:8087/auth/",
+    "keycloak.server.url" : "http://172.18.125.138:8087/auth/",
     "keycloak.client.id" : "m4i_public",
     "keycloak.realm.name": "m4i",    
 }

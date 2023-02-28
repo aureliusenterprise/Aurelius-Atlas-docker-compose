@@ -1,4 +1,4 @@
-jobmanager.rpc.address: flink-jobmanager
+jobmanager.rpc.address: jobmanager
 taskmanager.numberOfTaskSlots: 10
 blob.server.port: 6124
 jobmanager.rpc.port: 6123
@@ -15,14 +15,5 @@ taskmanager.memory.managed.size: 1600m
 taskmanager.memory.task.off-heap.size: 4000m
 # It will be added to the JVM Heap size and will be dedicated to Flink’s operators running the user code.
 taskmanager.memory.task.heap.size: 512m 
-parallelism.default: 1query.server.port: 6125
-
-jobmanager.rpc.address: jobmanager        
-
+parallelism.default: 1
 query.server.port: 6125
-
-jobmanager.rpc.address: jobmanager        
-
-
-jobmanager.rpc.address: jobmanager        
-
