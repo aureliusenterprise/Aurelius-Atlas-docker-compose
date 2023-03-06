@@ -1,0 +1,6 @@
+atlas-stack/keycloak-conf.json
+keycloak-stack/realm_m4i.json
+rest-python/m4i_atlas_config.py
+rest-python/m4i_backend_config.py
+rest-python/m4i_platform_config.py
+atlas-stack/keycloak-conf.json
