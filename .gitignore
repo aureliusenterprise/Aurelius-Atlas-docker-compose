@@ -2,5 +2,9 @@ atlas-stack/keycloak-conf.json
 keycloak-stack/realm_m4i.json
 rest-python/m4i_atlas_config.py
 rest-python/m4i_backend_config.py
-rest-python/m4i_platform_config.py
 atlas-stack/keycloak-conf.json
+.env
+flink-stack/config.py
+reverse-proxy-files/config.d/atlas.conf
+reverse-proxy-files/config.d/atlas2.conf
+reverse-proxy-files/config.d/auth.conf
