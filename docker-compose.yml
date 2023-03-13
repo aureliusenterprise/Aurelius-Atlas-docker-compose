@@ -216,7 +216,7 @@ services:
       - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
       - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
       - ENTERPRISESEARCH_HOST=http://enterprisesearch:${ENTERPRISE_SEARCH_PORT}
-      - SERVER_PUBLICBASEURL=http://172.18.125.138:8087/kibana
+      - SERVER_PUBLICBASEURL=http://reverse-proxy:8087/kibana
       - SERVER_BASEPATH=/kibana
     mem_limit: ${MEM_LIMIT}
     healthcheck:
@@ -252,7 +252,7 @@ services:
       - elasticsearch.ssl.enabled=true
       - elasticsearch.ssl.certificate_authority=/usr/share/enterprise-search/config/certs/ca/ca.crt
       - kibana.external_url=http://kibana:5601
-    mem_limit: ${MEM_LIMIT}
+    #mem_limit: ${MEM_LIMIT}
     healthcheck:
       test:
         [
