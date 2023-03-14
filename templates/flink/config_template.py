@@ -19,7 +19,7 @@ config = {
     # "elastic.base.endpoint" : "elastic.{{ .Release.Namespace }}.svc.cluster.local:9200/api/as/v1",
     # "elastic.search.endpoint" : "http://elastic-search-es-http.{{ .Release.Namespace }}.svc.cluster.local:9200",
     # "elastic.enterprise.search.endpoint" : "http://enterprise-search-ent-http.{{ .Release.Namespace }}.svc.cluster.local:3002",
-    "elastic.base.endpoint" : "$EXTERNAL_IP:8087/elastic/api/as/v1", #via reverse proxy
+    "elastic.base.endpoint" : "http://$EXTERNAL_IP:8087/elastic/api/as/v1", #via reverse proxy
     "elastic.search.endpoint" : "http://$EXTERNAL_IP:8087/elastic", #reverse-proxy
     "elastic.enterprise.search.endpoint" : "http://$EXTERNAL_IP:8087/app-search", #reverse-proxy
 
