@@ -20,8 +20,8 @@ config = {
     # "elastic.search.endpoint" : "http://elastic-search-es-http.{{ .Release.Namespace }}.svc.cluster.local:9200",
     # "elastic.enterprise.search.endpoint" : "http://enterprise-search-ent-http.{{ .Release.Namespace }}.svc.cluster.local:3002",
     "elastic.base.endpoint" : "$EXTERNAL_IP:8087/elastic/api/as/v1", #via reverse proxy
-    "elastic.search.endpoint" : "https://$EXTERNAL_IP:8087/elastic", #reverse-proxy
-    "elastic.enterprise.search.endpoint" : "https://$EXTERNAL_IP:8087/app-search", #reverse-proxy
+    "elastic.search.endpoint" : "http://$EXTERNAL_IP:8087/elastic", #reverse-proxy
+    "elastic.enterprise.search.endpoint" : "http://$EXTERNAL_IP:8087/app-search", #reverse-proxy
 
     "keycloak.server.url" : "http://$EXTERNAL_IP:8087/auth/",
     "keycloak.client.id" : "m4i_public",

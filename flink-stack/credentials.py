@@ -1,16 +1,17 @@
+# TODO: fix passwords, taken from env variables
 credentials = {
     "atlas.credentials.username": "atlas",
-    "atlas.credentials.password": None,
+    "atlas.credentials.password": "1234",
 
     "elastic.user": "elastic",
-    "elastic.passwd": "ELASTIC_PASSWORD",  # ELASTIC_PASSWORD
+    "elastic.passwd": "elasticpw",  # ELASTIC_PASSWORD
     "elastic.cloud.id": None,
     "elastic_search_passwd": None,
 
-    "elastic.cloud.password": "ELASTIC_PASSWORD",
+    "elastic.cloud.password": "elasticpw",
 
     "keycloak.client.secret.key": None,
 
     "keycloak.credentials.username" : "atlas",
-    "keycloak.credentials.password" : "KEYCLOAK_ATLAS_ADMIN_PASSWORD"
+    "keycloak.credentials.password" : "1234"
 }
