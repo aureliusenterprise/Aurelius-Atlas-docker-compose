@@ -12,10 +12,10 @@ services:
 #    depends_on:
 #      enterprisesearch:
 #        condition: service_healthy
-    #environment:
-    #  - ENTERPRISE_SEARCH_INTERNAL_URL=${ENTERPISE_SEARCH_INTERNAL_URL}
-    #  - ELASTIC_USERNAME=${ELASTIC_USERNAME}
-    #  - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    environment:
+      - ENTERPRISE_SEARCH_INTERNAL_URL=${ENTERPRISE_SEARCH_INTERNAL_URL}
+      - ELASTIC_USERNAME=${ELASTIC_USERNAME}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     
     volumes:
       - ./reverse-proxy-files/config.d/atlas.conf:/usr/local/apache2/conf.d/atlas.conf
@@ -322,7 +322,7 @@ services:
       - ELASTIC_HOST=${ELASTIC_HOST}
       - ELASTIC_CA_CERTS_PATHS=${ELASTIC_CA_CERTS_PATHS}
       - RESTAPI_ADDITIONAL_CONTEXT=atlas
-      - ATLAS_SERVER_URL=${ATLAS_SERVER_URL}       
+      - ATLAS_SERVER_URL=${ATLAS_SERVER_URL}    
       
 volumes:
   reverse-proxy:
