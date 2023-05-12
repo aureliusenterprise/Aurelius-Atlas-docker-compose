@@ -8,3 +8,4 @@ flink-stack/config.py
 reverse-proxy-files/config.d/atlas.conf
 reverse-proxy-files/config.d/atlas2.conf
 reverse-proxy-files/config.d/auth.conf
+README.md
