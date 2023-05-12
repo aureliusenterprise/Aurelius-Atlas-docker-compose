@@ -59,7 +59,7 @@ services:
       test:
         [
             "CMD-SHELL",
-            "wget http://172.18.122.207:21000",
+            "wget http://svr5:21000",
         ]
       interval: 10s
       timeout: 5s

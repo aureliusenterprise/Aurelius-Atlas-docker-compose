@@ -21,10 +21,10 @@ python create_keycloak_users.py -u atlas -p KEYCLOAK_ATLAS_ADMIN_PASSWORD -r ["R
 
 # setup enterprise search engine and initialize m4i types 
 python init-app-search-engines.py  >> /tmp/log.out
-python init-atlas-m4i-types.py >> /tmp/log.out
+python init-atlas-m4i-types.py
 
 # start flink jobs
-# cd /opt/flink/py_libs/m4i-flink-tasks/scripts
+cd /opt/flink/py_libs/m4i-flink-tasks/scripts
 /opt/flink/bin/flink run -d -py get_entity_job.py >> /tmp/log.out
 /opt/flink/bin/flink run -d -py publish_state_job.py >> /tmp/log.out
 /opt/flink/bin/flink run -d -py determine_change_job.py >> /tmp/log.out
