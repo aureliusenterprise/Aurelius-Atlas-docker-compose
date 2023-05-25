@@ -8,25 +8,21 @@ This guide provides comprehensive instructions for setting up the Docker Compose
 
 ## Description of system
 
-The solution is based on Apache Atlas for metadata management and governance, and Apache Kafka is utilized within HBase. The original Apache Kafka user interface remains accessible. Additionally, an Apache server is implemented to handle frontend traffic. A custom interface has been developed to enable effective search functionality and full-text search capabilities, leveraging the power of the Elastic stack. This stack includes Elasticsearch, Enterprise Search, and Kibana. Keycloak serves as our identity provider. Apache Flink is employed to implement streaming jobs that consume Kafka events from Apache Atlas. These events are enriched and stored within Kafka topics as well as within the Elastic Enterprise Search.
-
-## Installation Requirements
-To deploy this solution you will need to install the following components:
-
-Host:
-- docker
-- docker compose
-- ssh server
-
-Client:
-- ssh client
-
-Please ensure that you have these components installed on both the host and client machines for a successful deployment
+The solution is based on Apache Atlas for metadata management and governance, and Apache Kafka is utilized for communicating changes in the system between different components. An Kafka Web based user interface is made accessible to have easy access to the Apache Kafka system for maintenance and trouble shooting. Additionally, an Apache server is implemented to handle frontend traffic and distribute the traffic to the corresponding compoents. A custom interface has been developed to enable effective search and browsing functionality using full-text search capabilities, leveraging the power of the Elastic stack. This stack includes Elasticsearch, Enterprise Search, and Kibana. Keycloak serves as the identity provider implementing Single Sign On functionalty for all Web based user interfaces. Apache Flink is used to facility the creation of metadata to support the search functionality. Thus, Apache Flink runs streaming jobs that consume Kafka events from Apache Atlas and create metadata in Elastic Enterprise Search. 
 
 ## Hardware requirements
 - 4 CPU cores 
 - 32GB RAM 
 - 100GB DISK
+
+
+## Installation Requirements
+To deploy this solution you will need to install the following components:
+
+- docker
+- docker compose
+
+Please ensure that you have these components installed on both the host and client machines for a successful deployment
 
 ## How to connect to the docker-compose environment?
  For the client a local machine is required and for the host a VM or local machine can be used. Below we describe some possible scenarios for this deployment
@@ -39,14 +35,25 @@ Please ensure that you have these components installed on both the host and clie
 
 ### Deployment on VM without public domain name
 
-- Connect to the VM using as destination its private IP 
+In this deployment situation, a VM is used further referred to as Host and a client, whcih can be directly accessed by the user.
+In this scenario the following additional components are required:
 
-- Define a ssh tunnel to the IP of the VM
+Host:
+- ssh server
+
+Client:
+- ssh client
+
+To achieve connectivity with the Host and the Client the following steps have to be taken:
+
+- From the client Connect to the Host using as destination the hosts IP address 
+
+- Define a ssh tunnel from the client to the host for port 8087
     ```
     8087 -> 127.0.0.1:8087
     ```
 
-- Extend hosts file with the following line (admin right required)
+- Extend hosts file on the client with the following line (admin right required)
 
     ```
     127.0.0.1       localhost localhost4 $EXTERNAL_IP
@@ -90,7 +97,7 @@ On the host:
     ```
     sudo sysctl -w vm.max_map_count=262144
     ```
-    For more details on configuring virtual memory for Elasticsearch, refer to this [page](https://www.elastic.co/guide/en/elasticsearch/reference/8.2/vm-max-map-count.html).
+    For more details on configuring virtual memory for Elasticsearch, refer to the elastic documentation [page](https://www.elastic.co/guide/en/elasticsearch/reference/8.2/vm-max-map-count.html).
 
 ##  Environment variables responsible for user/pass
 By default these roles are created in the different services:
@@ -109,21 +116,19 @@ Password: 1234
 
 ## Spin up docker-compose environment:
  
-### On the host:
+To start up the system, execute the following command on the host.
 
 ```
 docker compose up -d
 ```
-
+Starting up the system may take several minutes. 
 This is how the system looks in operational state:
 ![result_docker_compose_ps](./images/docker_compose_ps.png)
 
 When the Apache Atlas container state changes from starting to healthy, then the system is ready.
 
 
-### On the client:
-
-You are able now to access the reverse proxy at ```http://$EXTERNAL_IP:8087/```
+You are able now to access Aurelius Atlas at thw client wiht the URL ```http://$EXTERNAL_IP:8087/```
 
 ![reverse-proxy](./images/frontend.png)
 
