@@ -1,5 +1,5 @@
 config = {
-    "atlas.server.url": "http://$EXTERNAL_IP:21000/api/atlas",
+    "atlas.server.url": "http://$EXTERNAL_HOST:21000/api/atlas",
     "kafka.bootstrap.server.hostname": "broker",
     "kafka.bootstrap.server.port": "29092",
     "kafka.consumer.group.id": "",
@@ -19,11 +19,11 @@ config = {
     # "elastic.base.endpoint" : "elastic.{{ .Release.Namespace }}.svc.cluster.local:9200/api/as/v1",
     # "elastic.search.endpoint" : "http://elastic-search-es-http.{{ .Release.Namespace }}.svc.cluster.local:9200",
     # "elastic.enterprise.search.endpoint" : "http://enterprise-search-ent-http.{{ .Release.Namespace }}.svc.cluster.local:3002",
-    "elastic.base.endpoint" : "http://$EXTERNAL_IP:8087/elastic/api/as/v1", #via reverse proxy
-    "elastic.search.endpoint" : "http://$EXTERNAL_IP:8087/elastic", #reverse-proxy
-    "elastic.enterprise.search.endpoint" : "http://$EXTERNAL_IP:8087/app-search", #reverse-proxy
+    "elastic.base.endpoint" : "http://$EXTERNAL_HOST:8087/elastic/api/as/v1", #via reverse proxy
+    "elastic.search.endpoint" : "http://$EXTERNAL_HOST:8087/elastic", #reverse-proxy
+    "elastic.enterprise.search.endpoint" : "http://$EXTERNAL_HOST:8087/app-search", #reverse-proxy
 
-    "keycloak.server.url" : "http://$EXTERNAL_IP:8087/auth/",
+    "keycloak.server.url" : "http://$EXTERNAL_HOST:8087/auth/",
     "keycloak.client.id" : "m4i_public",
     "keycloak.realm.name": "m4i",    
 }

@@ -56,7 +56,7 @@ To achieve connectivity with the Host and the Client the following steps have to
 - Extend hosts file on the client with the following line (admin right required)
 
     ```
-    127.0.0.1       localhost localhost4 $EXTERNAL_IP
+    127.0.0.1       localhost localhost4 $EXTERNAL_HOST
     ```
 
     This is a representation of the described deployment on VM:
@@ -76,13 +76,13 @@ On the host:
 - If deployment is on local machine:
 
     ```
-    export EXTERNAL_IP=$(ifconfig eth0 | grep 'inet' | cut -d: -f2 | sed -e 's/.*inet \([^ ]*\).*/\1/')
+    export EXTERNAL_HOST=$(ifconfig eth0 | grep 'inet' | cut -d: -f2 | sed -e 's/.*inet \([^ ]*\).*/\1/')
     ```
 
 - If deployment is on a VM:
 
     ```
-    export EXTERNAL_IP={hostname of VM}
+    export EXTERNAL_HOST={hostname of VM}
     ```
 
 3. Run the following script:
@@ -90,7 +90,7 @@ On the host:
     ./retrieve_ip.sh
     ```
 
-    This script updates the values of `$EXTERNAL_IP` within the templates used to generate the necessary configuration files for the various services.
+    This script updates the values of `$EXTERNAL_HOST` within the templates used to generate the necessary configuration files for the various services.
 
 4. Grant Elasticsearch sufficient virtual memory to facilitate its startup (admin rights required):
 
@@ -128,7 +128,7 @@ This is how the system looks in operational state:
 When the Apache Atlas container state changes from starting to healthy, then the system is ready.
 
 
-You are able now to access Aurelius Atlas at thw client wiht the URL ```http://$EXTERNAL_IP:8087/```
+You are able now to access Aurelius Atlas at thw client wiht the URL ```http://$EXTERNAL_HOST:8087/```
 
 ![reverse-proxy](./images/frontend.png)
 

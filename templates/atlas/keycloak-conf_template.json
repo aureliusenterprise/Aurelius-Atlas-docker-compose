@@ -1,6 +1,6 @@
 {
     "realm": "m4i",
-    "auth-server-url": "http://$EXTERNAL_IP:8087/auth/",
+    "auth-server-url": "http://$EXTERNAL_HOST:8087/auth/",
     "ssl-required": "none",
     "resource": "m4i_public",
     "public-client": true,

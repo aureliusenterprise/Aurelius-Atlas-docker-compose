@@ -1052,15 +1052,15 @@
         "id": "c3e97388-9983-48e4-a44f-66e3f6b6d9ea",
         "clientId": "m4i_atlas",
         "name": "Models4Insight Data Management",
-        "rootUrl": "http://$EXTERNAL_IP:8087/atlas/",
-        "adminUrl": "http://$EXTERNAL_IP:8087/auth_admin/",
+        "rootUrl": "http://$EXTERNAL_HOST:8087/atlas/",
+        "adminUrl": "http://$EXTERNAL_HOST:8087/auth_admin/",
         "surrogateAuthRequired": false,
         "enabled": true,
         "alwaysDisplayInConsole": false,
         "clientAuthenticatorType": "client-secret",
         "redirectUris": [
-          "http://$EXTERNAL_IP:9100/atlas/api/*",
-          "http://$EXTERNAL_IP:8087/*"
+          "http://$EXTERNAL_HOST:9100/atlas/api/*",
+          "http://$EXTERNAL_HOST:8087/*"
         ],
         "webOrigins": [
           "*"
@@ -1834,16 +1834,16 @@
       {
         "id": "0587e7aa-a325-4873-87de-004ea70a88a3",
         "clientId": "m4i_public",
-        "rootUrl": "http://$EXTERNAL_IP:8087/",
+        "rootUrl": "http://$EXTERNAL_HOST:8087/",
         "surrogateAuthRequired": false,
         "enabled": true,
         "alwaysDisplayInConsole": false,
         "clientAuthenticatorType": "client-secret",
         "redirectUris": [
-          "http://$EXTERNAL_IP:8087/*",
-          "http://$EXTERNAL_IP:8087/atlas/*",
-          "http://$EXTERNAL_IP:8087/atlas2/*",
-          "http://$EXTERNAL_IP:21000/*"
+          "http://$EXTERNAL_HOST:8087/*",
+          "http://$EXTERNAL_HOST:8087/atlas/*",
+          "http://$EXTERNAL_HOST:8087/atlas2/*",
+          "http://$EXTERNAL_HOST:21000/*"
         ],
         "webOrigins": [
           "*"
