@@ -312,26 +312,26 @@ services:
       - ./flink-stack/credentials.py:/opt/flink/tasks-conf/credentials.py
       - ./flink-stack/init_taskmanager.sh:/opt/flink/init/init_taskmanager.sh
 
-#   python-rest:
-#     image: ${PYTHON_REST_IMAGE}:${PYTHON_REST_VERSION}
-#     container_name: python-rest
-#     depends_on:
-#       enterprisesearch:
-#         condition: service_healthy
-#     ports:
-#       - ${PYTHON_REST_PORT}:5000
-#     volumes:
-#       - ./rest-python/m4i_atlas_config.py:/rest-services/m4i_atlas_config.py
-#       - ./rest-python/m4i_backend_config.py:/rest-services/m4i_backend_config.py
-#       - ./rest-python/m4i_platform_config.py:/rest-services/m4i_platform_config.py
-#       # - v-elastic-certs
-#     environment:
-#       - ELASTIC_USERNAME=${ELASTIC_USERNAME}
-#       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-#       - ELASTIC_HOST=${ELASTIC_HOST}
-#       - ELASTIC_CA_CERTS_PATHS=${ELASTIC_CA_CERTS_PATHS}
-#       - RESTAPI_ADDITIONAL_CONTEXT=atlas
-#       - ATLAS_SERVER_URL=${ATLAS_SERVER_URL}
+  python-rest:
+    image: ${PYTHON_REST_IMAGE}:${PYTHON_REST_VERSION}
+    container_name: python-rest
+    depends_on:
+      enterprisesearch:
+        condition: service_healthy
+    ports:
+      - ${PYTHON_REST_PORT}:5000
+    volumes:
+      - ./rest-python/m4i_atlas_config.py:/rest-services/m4i_atlas_config.py
+      - ./rest-python/m4i_backend_config.py:/rest-services/m4i_backend_config.py
+      - ./rest-python/m4i_platform_config.py:/rest-services/m4i_platform_config.py
+      # - v-elastic-certs
+    environment:
+      - ELASTIC_USERNAME=${ELASTIC_USERNAME}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTIC_HOST=${ELASTIC_HOST}
+      # - ELASTIC_CA_CERTS_PATHS=${ELASTIC_CA_CERTS_PATHS}
+      # - RESTAPI_ADDITIONAL_CONTEXT=atlas
+      - ATLAS_SERVER_URL=${ATLAS_SERVER_URL}
       
 volumes:
   reverse-proxy:
