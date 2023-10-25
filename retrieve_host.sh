@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # reverse-proxy 
 envsubst '$EXTERNAL_HOST' < templates/reverse-proxy/atlas_template.conf > reverse-proxy-files/config.d/atlas.conf
