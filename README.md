@@ -87,10 +87,10 @@ On the host:
 
 3. Run the following script:
     ```
-    ./retrieve_ip.sh
+    ./retrieve_host.sh
     ```
 
-    This script updates the values of `$EXTERNAL_HOST` within the templates used to generate the necessary configuration files for the various services.
+    This script updates the values of `$EXTERNAL_HOST` within the templates that generate the necessary configuration files for the various services.
 
 4. Grant Elasticsearch sufficient virtual memory to facilitate its startup (admin rights required):
 

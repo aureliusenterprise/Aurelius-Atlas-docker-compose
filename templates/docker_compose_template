@@ -321,17 +321,18 @@ services:
     ports:
       - ${PYTHON_REST_PORT}:5000
     volumes:
+      - certs:/usr/share/certificates
       - ./rest-python/m4i_atlas_config.py:/rest-services/m4i_atlas_config.py
       - ./rest-python/m4i_backend_config.py:/rest-services/m4i_backend_config.py
       - ./rest-python/m4i_platform_config.py:/rest-services/m4i_platform_config.py
       # - v-elastic-certs
     environment:
-      - ELASTIC_USERNAME=${ELASTIC_USERNAME}
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - ELASTIC_HOST=${ELASTIC_HOST}
-      # - ELASTIC_CA_CERTS_PATHS=${ELASTIC_CA_CERTS_PATHS}
-      # - RESTAPI_ADDITIONAL_CONTEXT=atlas
+      - elastic_username=${ELASTIC_USERNAME}
+      - elastic_password=${ELASTIC_PASSWORD}
+      - elastic_host=${ELASTIC_HOST}
+      - elastic_ca_certs_path=${ELASTIC_CA_CERTS_PATH}
       - ATLAS_SERVER_URL=${ATLAS_SERVER_URL}
+      # - RESTAPI_ADDITIONAL_CONTEXT=atlas
       
 volumes:
   reverse-proxy:
