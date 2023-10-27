@@ -6,7 +6,7 @@ envsubst '$EXTERNAL_HOST' < templates/reverse-proxy/atlas2_template.conf > rever
 envsubst '$EXTERNAL_HOST' < templates/reverse-proxy/auth_template.conf > reverse-proxy-files/config.d/auth.conf
 
 #keycloak - modifies only m4i_public, m4i_atlas
-envsubst '$EXTERNAL_HOST' < templates/keycloak/realm_m4i_templates.json > keycloak-stack/realm_m4i.json
+envsubst '$EXTERNAL_IP' < templates/keycloak/realm_m4i_templates.json > keycloak-stack/realm_m4i.json
 
 #atlas
 envsubst '$EXTERNAL_HOST' < templates/atlas/keycloak-conf_template.json > atlas-stack/keycloak-conf.json
