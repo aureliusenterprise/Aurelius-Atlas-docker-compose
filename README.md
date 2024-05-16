@@ -1,92 +1,151 @@
-# Aurelius Atlas docker compose
+# How to deploy Aurelius Atlas with Docker Compose
+
+Getting started
+-------------------------
+Welcome to Aurelius Atlas, a powerful data governance solution powered by Apache Atlas! Aurelius Atlas leverages a carefully curated suite of open-source tools to provide business users with seamless access to governance information. Our solution is designed to address the evolving demands of data governance in a distributed data environment, ensuring that you can easily consume and utilize valuable governance insights.
+
+This guide provides comprehensive instructions for setting up the Docker Compose deployment and covers various deployment scenarios. You will find step-by-step instructions to configure the required setup and deploy the system.
+
+## Description of system
+
+The solution is based on Apache Atlas for metadata management and governance, and Apache Kafka is utilized for communicating changes in the system between different components. A Kafka Web based user interface is made accessible to have easy access to the Apache Kafka system for maintenance and trouble shooting. Additionally, an Apache server is implemented to handle and distribute frontend traffic to the corresponding components. A custom interface has been developed to enable effective search and browsing functionality using full-text search capabilities, leveraging the power of the Elastic stack. This stack includes Elasticsearch, Enterprise Search, and Kibana. Keycloak serves as the identity provider implementing Single Sign On functionalty for all Web based user interfaces. Apache Flink is used to facility the creation of metadata to support the search functionality. Thus, Apache Flink runs streaming jobs that consume Kafka events from Apache Atlas and create metadata in Elastic Enterprise Search. 
+
+## Hardware requirements
+- 4 CPU cores 
+- 32GB RAM 
+- 100GB DISK
 
 
+## Installation Requirements
+To deploy this solution you will need to install the following components:
 
-## Getting started
+- docker
+- docker compose
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Please ensure that you have these components installed on both the host and client machines for a successful deployment
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## How to connect to the docker-compose environment?
+ For the client a local machine is required and for the host a VM or local machine can be used. Below we describe some possible scenarios for this deployment
 
-## Add your files
+### Deployment on local machine
+- No additional action is required
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+### Deployment on VM with public domain name
+- Connect to the VM using as destination its public IP
+
+### Deployment on VM without public domain name
+
+In this deployment situation, a VM is used further referred to as Host and a client, whcih can be directly accessed by the user.
+In this scenario the following additional components are required:
+
+Host:
+- ssh server
+
+Client:
+- ssh client
+
+To achieve connectivity with the Host and the Client the following steps have to be taken:
+
+- From the client Connect to the Host using as destination the hosts IP address 
+
+- Define a ssh tunnel from the client to the host for port 8087
+    ```
+    8087 -> 127.0.0.1:8087
+    ```
+
+- Extend hosts file on the client with the following line (admin right required)
+
+    ```
+    127.0.0.1       localhost localhost4 $EXTERNAL_HOST
+    ```
+
+    This is a representation of the described deployment on VM:
+
+    <img src="images/deployment_result.png" alt="Image" width="600">  
+
+## Preparatory Steps:
+
+On the host:
+1. Start docker (admin rights required):
+    ```
+    sudo service docker start
+    ```
+
+2. Obtain the IP address or hostname of the host machine's eth0 interface:
+    
+- If deployment is on local machine:
+
+    ```
+    export EXTERNAL_HOST=$(ifconfig eth0 | grep 'inet' | cut -d: -f2 | sed -e 's/.*inet \([^ ]*\).*/\1/')
+    ```
+
+- If deployment is on a VM:
+
+    ```
+    export EXTERNAL_HOST={hostname of VM}
+    ```
+
+3. Run the following script:
+    ```
+    ./retrieve_host.sh
+    ```
+
+    This script updates the values of `$EXTERNAL_HOST` within the templates that generate the necessary configuration files for the various services.
+
+4. Grant Elasticsearch sufficient virtual memory to facilitate its startup (admin rights required):
+
+    ```
+    sudo sysctl -w vm.max_map_count=262144
+    ```
+    For more details on configuring virtual memory for Elasticsearch, refer to the elastic documentation [page](https://www.elastic.co/guide/en/elasticsearch/reference/8.2/vm-max-map-count.html).
+
+##  Environment variables responsible for user/pass
+By default these roles are created in the different services:
+
+- Elastic Admin User:  
+Username: elastic  
+Password: elasticpw
+
+- Keycloak Admin user:  
+Username: admin  
+Password: admin
+
+- Aurelius/Apache Atlas Admin User:  
+Username: atlas  
+Password: 1234
+
+## Spin up docker-compose environment:
+ 
+To start up the system, execute the following command on the host.
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/m4i/aurelius-atlas-docker-compose.git
-git branch -M main
-git push -uf origin main
+docker compose up -d
+```
+Starting up the system may take several minutes. 
+This is how the system looks in operational state:
+![result_docker_compose_ps](./images/docker_compose_ps.png)
+
+When the Apache Atlas container state changes from starting to healthy, then the system is ready.
+
+
+You are able now to access Aurelius Atlas at thw client wiht the URL ```http://$EXTERNAL_HOST:8087/```
+
+![reverse-proxy](./images/frontend.png)
+
+You can find more information about the product in this [page](https://www.aurelius-atlas.com/docs/doc-technicall-manual/en/dev/Options/what.html)
+
+#### Notes:
+
+- How to restart Apache Atlas?
+```
+docker exec -it atlas /bin/bash
+cd /opt/apache-atlas-2.2.0/bin/
+python atlas_stop.py
+python atlas_start.py
 ```
 
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/m4i/aurelius-atlas-docker-compose/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+- How to restart reverse proxy?
+```
+docker exec -it reverse-proxy /bin/bash
+apachectl restart
+```
