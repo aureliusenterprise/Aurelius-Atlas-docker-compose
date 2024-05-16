@@ -1,6 +1,6 @@
 {
   "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
-  "connection.url": "https://elastic-search-es-http:9200",
+  "connection.url": "https://es01:9200",
   "connection.username": "elastic",
   "connection.password": "ELASTIC_PASSWORD",
   "elastic.security.protocol": "SSL",
