@@ -56,8 +56,8 @@ services:
     environment:
       - ATLAS_EXTERNAL_URL=${ATLAS_EXTERNAL_URL}
       - KEYCLOAK_SERVER_URL=${KEYCLOAK_SERVER_URL}
-      - KEYCLOAK_ATLAS_ADMIN_USERNAME=${KEYCLOAK_ATLAS_ADMIN_USERNAME}
-      - KEYCLOAK_ATLAS_ADMIN_PASSWORD=${KEYCLOAK_ATLAS_ADMIN_PASSWORD}
+      - KEYCLOAK_ATLAS_ADMIN_USERNAME=atlas
+      - KEYCLOAK_ATLAS_ADMIN_PASSWORD=atlas
     healthcheck:
       test:
         [
@@ -292,10 +292,6 @@ services:
     volumes:
       - ./flink-stack/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
       - ./flink-stack/log4j-console.properties:/opt/flink/conf/log4j-console.properties
-      - ./flink-stack/config.py:/opt/flink/tasks-conf/config.py
-      - ./flink-stack/credentials.py:/opt/flink/tasks-conf/credentials.py
-      - ./flink-stack/init_jobmanager.sh:/opt/flink/init/init_jobmanager.sh
-      - ./flink-stack/init-app-search-engines.py:/opt/flink/init-app-search-engines.py
     environment:
       - ELASTICSEARCH_USERNAME=${ELASTIC_USERNAME}
       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
@@ -332,9 +328,6 @@ services:
       - certs:/opt/flink/certs
       - ./flink-stack/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
       - ./flink-stack/log4j-console.properties:/opt/flink/conf/log4j-console.properties
-      - ./flink-stack/config.py:/opt/flink/tasks-conf/config.py
-      - ./flink-stack/credentials.py:/opt/flink/tasks-conf/credentials.py
-      - ./flink-stack/init_taskmanager.sh:/opt/flink/init/init_taskmanager.sh
     command: /bin/bash -c "/opt/flink/bin/taskmanager.sh start && tail -f /dev/null"
 
   python-rest:
