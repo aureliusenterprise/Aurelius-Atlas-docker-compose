@@ -145,9 +145,9 @@ services:
           unzip config/certs/certs.zip -d config/certs;
         fi;
         echo "Setting file permissions"
-        chown -R root:root config/certs;
-        find . -type d -exec chmod 750 \{\} \;;
-        find . -type f -exec chmod 640 \{\} \;;
+        chown -R 9999:9999 config/certs # refers to user _flink_ from official flink image
+        find . -type d -exec chmod 755 \{\} \;;
+        find . -type f -exec chmod 644 \{\} \;;
         echo "Waiting for Elasticsearch availability";
         until curl -s --cacert config/certs/ca/ca.crt https://es01:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
         echo "Setting kibana_system password";
@@ -282,7 +282,6 @@ services:
     ports:
       - ${FLINK_PORT}:8081
     command: /bin/bash -c "/opt/flink/bin/jobmanager.sh start && tail -f /dev/null"
-    user: "0"
     depends_on:
       keycloak:
         condition: service_started
@@ -291,7 +290,6 @@ services:
       atlas:
         condition: service_healthy
     volumes:
-      - certs:/opt/flink/secret_certs
       - ./flink-stack/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
       - ./flink-stack/log4j-console.properties:/opt/flink/conf/log4j-console.properties
       - ./flink-stack/config.py:/opt/flink/tasks-conf/config.py
@@ -329,13 +327,15 @@ services:
     depends_on:
       - jobmanager
       - reverse-proxy
-    command: /bin/bash -c "/opt/flink/bin/taskmanager.sh start && tail -f /dev/null"
+    user: "0"
     volumes:
+      - certs:/opt/flink/certs
       - ./flink-stack/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
       - ./flink-stack/log4j-console.properties:/opt/flink/conf/log4j-console.properties
       - ./flink-stack/config.py:/opt/flink/tasks-conf/config.py
       - ./flink-stack/credentials.py:/opt/flink/tasks-conf/credentials.py
       - ./flink-stack/init_taskmanager.sh:/opt/flink/init/init_taskmanager.sh
+    command: /bin/bash -c "/opt/flink/bin/taskmanager.sh start && tail -f /dev/null"
 
   python-rest:
     image: ${PYTHON_REST_IMAGE}:${PYTHON_REST_VERSION}
@@ -423,7 +423,7 @@ services:
       - ATLAS_EXTERNAL_URL=http://$EXTERNAL_HOST:21000/api/atlas
       - KEYCLOAK_CLIENT_ID=m4i_atlas
       - KEYCLOAK_REALM_NAME=m4i
-      - ELASTIC_CERTIFICATE_PATH=${ELASTIC_CERTIFICATE_PATH}
+      - ELASTIC_CERTIFICATE_PATH=${ELASTICSEARCH_CERTIFICATE_PATH}
       - ELASTICSEARCH_APP_SEARCH_INDEX_NAME=.ent-search-engine-documents-atlas-dev
       - ELASTICSEARCH_STATE_INDEX_NAME=publish_state
       - KAFKA_APP_SEARCH_TOPIC_NAME=.ent-search-engine-documents-atlas-dev
@@ -439,7 +439,7 @@ services:
       - ELASTICSEARCH_CERTIFICATE_PATH=${ELASTICSEARCH_CERTIFICATE_PATH}
     entrypoint: ["/bin/sh", "-c"]
     command: >
-      "python -m pip install --no-cache-dir -r requirements.txt && ./run.sh"
+      "python -m pip install --no-cache-dir -r requirements.txt && ./run.sh && tail -f /dev/null"
 
 volumes:
   reverse-proxy:
