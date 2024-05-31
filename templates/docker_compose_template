@@ -432,7 +432,7 @@ services:
       - ELASTICSEARCH_CERTIFICATE_PATH=${ELASTICSEARCH_CERTIFICATE_PATH}
     entrypoint: ["/bin/sh", "-c"]
     command: >
-      "python -m pip install --no-cache-dir -r requirements.txt && ./run.sh && tail -f /dev/null"
+      "python -m pip install --no-cache-dir -r requirements.txt && ./run.sh"
 
 volumes:
   reverse-proxy:
