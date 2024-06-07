@@ -15,7 +15,7 @@ services:
       - ENTERPRISE_SEARCH_INTERNAL_URL=${ENTERPRISE_SEARCH_INTERNAL_URL}
       - ELASTIC_USERNAME=${ELASTIC_USERNAME}
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-    
+
     volumes:
       - ./reverse-proxy-files/config.d/atlas.conf:/usr/local/apache2/conf.d/atlas.conf
       - ./reverse-proxy-files/config.d/atlas2.conf:/usr/local/apache2/conf.d/atlas2.conf
@@ -25,12 +25,15 @@ services:
       - ./reverse-proxy-files/config.d/kafka-ui.conf:/usr/local/apache2/conf.d/kafka-ui.conf
       - ./reverse-proxy-files/config.d/elastic.conf:/usr/local/apache2/conf.d/elastic.conf
       - ./reverse-proxy-files/config.d/flink.conf:/usr/local/apache2/conf.d/flink.conf
-   
+
   keycloak:
     image: ${KEYCLOAK_REPOSITORY}:${KEYCLOAK_VERSION}
     container_name: keycloak
     ports:
       - ${KEYCLOAK_PORT}:8080
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "/opt/jboss/tools/docker-entrypoint.sh -b 0.0.0.0 2>&1 & /tmp/init_standard_users.sh && tail -f /dev/null"
     environment:
       - KEYCLOAK_USER=${KEYCLOAK_USER}
       - KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
@@ -41,20 +44,20 @@ services:
       - USER_STEWARD_PASSWORD=${USER_STEWARD_PASSWORD}
       - USER_DATA_PASSWORD=${USER_DATA_PASSWORD}
     volumes:
-      - ./keycloak-stack/realm_m4i.json:/tmp/realm_m4i.json    
+      - ./keycloak-stack/realm_m4i.json:/tmp/realm_m4i.json
 
   atlas:
     image: ${ATLAS_REPOSITORY}:${ATLAS_VERSION}
     container_name: atlas
-    ports: 
+    ports:
       - ${ATLAS_PORT}:21000
       - ${KAFKA_PORT}:9027
     command: /bin/bash -c /opt/apache-atlas-2.2.0/bin/startup.sh
     environment:
       - ATLAS_EXTERNAL_URL=${ATLAS_EXTERNAL_URL}
       - KEYCLOAK_SERVER_URL=${KEYCLOAK_SERVER_URL}
-      - KEYCLOAK_ATLAS_ADMIN_USERNAME=${KEYCLOAK_ATLAS_ADMIN_USERNAME}
-      - KEYCLOAK_ATLAS_ADMIN_PASSWORD=${KEYCLOAK_ATLAS_ADMIN_PASSWORD}
+      - KEYCLOAK_ATLAS_ADMIN_USERNAME=atlas
+      - KEYCLOAK_ATLAS_ADMIN_PASSWORD=atlas
     healthcheck:
       test:
         [
@@ -80,12 +83,12 @@ services:
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=${KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS}
       - SERVER_SERVLET_CONTEXT_PATH=${SERVER_SERVLET_CONTEXT_PATH}
 
-  
+
   zookeeper:
     image: ${ZOOKEEPER_IMAGE}:${ZOOKEEPER_VERSION}
     container_name: zookeeper
     environment:
-      - ZOOKEEPER_CLIENT_PORT=${ZOOKEEPER_CLIENT_PORT} 
+      - ZOOKEEPER_CLIENT_PORT=${ZOOKEEPER_CLIENT_PORT}
       - ZOOKEEPER_TICK_TIME=${ZOOKEEPER_TICK_TIME}
 
   broker:
@@ -105,7 +108,8 @@ services:
       -  KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}
       -  KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=${KAFKA_TRANSACTION_STATE_LOG_MIN_ISR}
       -  KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=${KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR}
-  
+      -  TOPIC_AUTO_CREATE=${KAFKA_AUTO_CREATE_TOPIC}
+
   setup:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     container_name: es-setup
@@ -141,9 +145,9 @@ services:
           unzip config/certs/certs.zip -d config/certs;
         fi;
         echo "Setting file permissions"
-        chown -R root:root config/certs;
-        find . -type d -exec chmod 750 \{\} \;;
-        find . -type f -exec chmod 640 \{\} \;;
+        chown -R 9999:9999 config/certs # refers to user _flink_ from official flink image
+        find . -type d -exec chmod 755 \{\} \;;
+        find . -type f -exec chmod 644 \{\} \;;
         echo "Waiting for Elasticsearch availability";
         until curl -s --cacert config/certs/ca/ca.crt https://es01:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
         echo "Setting kibana_system password";
@@ -242,6 +246,7 @@ services:
     volumes:
       - certs:/usr/share/enterprise-search/config/certs
       - enterprisesearchdata:/usr/share/enterprise-search/config
+      - ./enterprise-search-stack/add_setting.sh:/usr/share/enterprise-search/config/add_setting.sh
     ports:
       - ${ENTERPRISE_SEARCH_PORT}:3002
     environment:
@@ -264,13 +269,19 @@ services:
       interval: 10s
       timeout: 10s
       retries: 120
+    entrypoint: ["bash", "-c"]
+    command: >
+      '
+      /usr/share/enterprise-search/config/add_setting.sh;
+      /usr/local/bin/docker-entrypoint.sh
+      '
 
   jobmanager:
     image: ${FLINK_IMAGE}:${FLINK_VERSION}
     container_name: jobmanager
     ports:
       - ${FLINK_PORT}:8081
-    command: /bin/bash -c "/opt/flink/bin/jobmanager.sh start && /opt/flink/init/init_jobmanager.sh && tail -f /dev/null"
+    command: /bin/bash -c "/opt/flink/bin/jobmanager.sh start && tail -f /dev/null"
     depends_on:
       keycloak:
         condition: service_started
@@ -281,36 +292,43 @@ services:
     volumes:
       - ./flink-stack/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
       - ./flink-stack/log4j-console.properties:/opt/flink/conf/log4j-console.properties
-      - ./flink-stack/config.py:/opt/flink/tasks-conf/config.py
-      - ./flink-stack/credentials.py:/opt/flink/tasks-conf/credentials.py
-      - ./flink-stack/init_jobmanager.sh:/opt/flink/init/init_jobmanager.sh
-      - ./flink-stack/init-app-search-engines.py:/opt/flink/init-app-search-engines.py
     environment:
-      - ENTERPRISE_SEARCH_INTERNAL_URL=${ENTERPRISE_SEARCH_INTERNAL_URL}
-      - ELASTIC_USERNAME=${ELASTIC_USERNAME}
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+      - ELASTICSEARCH_USERNAME=${ELASTIC_USERNAME}
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
       - KEYCLOAK_ATLAS_ADMIN_PASSWORD=${KEYCLOAK_ATLAS_ADMIN_PASSWORD}
-      - KEYCLOAK_ATLAS_STEWARD_PASSWORD=${KEYCLOAK_ATLAS_STEWARD_PASSWORD}
       - KEYCLOAK_ATLAS_USER_USERNAME=${KEYCLOAK_ATLAS_USER_USERNAME}
       - KEYCLOAK_ATLAS_USER_PASSWORD=${KEYCLOAK_ATLAS_USER_PASSWORD}
       - KEYCLOAK_SERVER_URL=${KEYCLOAK_SERVER_URL}
-      - ENTERPRISE_SEARCH_EXTERNAL_URL=${ENTERPRISE_SEARCH_EXTERNAL_URL}
-      - ATLAS_EXTERNAL_URL=${ATLAS_EXTERNAL_URL}
-      
+      - ELASTICSEARCH_APP_SEARCH_INDEX_NAME=${ELASTICSEARCH_APP_SEARCH_INDEX_NAME}
+      - ELASTICSEARCH_STATE_INDEX_NAME=${ELASTICSEARCH_STATE_INDEX_NAME}
+      - KAFKA_APP_SEARCH_TOPIC_NAME=${KAFKA_APP_SEARCH_TOPIC_NAME}
+      - KAFKA_PUBLISH_STATE_TOPIC_NAME=publish_state
+      - KAFKA_CONSUMER_GROUP_ID=${KAFKA_CONSUMER_GROUP_ID}
+      - KAFKA_PRODUCER_GROUP_ID={KAFKA_PRODUCER_GROUP_ID}
+      - KAFKA_ERROR_TOPIC_NAME=${KAFKA_ERROR_TOPIC_NAME}
+      - KAFKA_SOURCE_TOPIC_NAME=${KAFKA_SOURCE_TOPIC_NAME}
+      - ELASTICSEARCH_ENDPOINT=${ELASTIC_HOST}
+      - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
+      - KEYCLOAK_REALM_NAME=${KEYCLOAK_REALM_NAME}
+      - KEYCLOAK_USERNAME=atlas
+      - KEYCLOAK_PASSWORD=atlas
+      - ELASTICSEARCH_CERTIFICATE_PATH=${ELASTICSEARCH_CERTIFICATE_PATH}
+      - ATLAS_SERVER_URL=http://$EXTERNAL_HOST:21000/api/atlas
+      - KAFKA_BOOTSTRAP_SERVER_HOSTNAME=broker
+      - KAFKA_BOOTSTRAP_SERVER_PORT=9092
+
   taskmanager:
     image: ${FLINK_IMAGE}:${FLINK_VERSION}
     container_name: taskmanager
     depends_on:
       - jobmanager
       - reverse-proxy
-    command: /bin/bash -c "/opt/flink/bin/taskmanager.sh start && /opt/flink/init/init_taskmanager.sh && tail -f /dev/null"
+    user: "0"
     volumes:
+      - certs:/opt/flink/certs
       - ./flink-stack/flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
       - ./flink-stack/log4j-console.properties:/opt/flink/conf/log4j-console.properties
-      - ./flink-stack/config.py:/opt/flink/tasks-conf/config.py
-      - ./flink-stack/credentials.py:/opt/flink/tasks-conf/credentials.py
-      - ./flink-stack/init_taskmanager.sh:/opt/flink/init/init_taskmanager.sh
+    command: /bin/bash -c "/opt/flink/bin/taskmanager.sh start && tail -f /dev/null"
 
   python-rest:
     image: ${PYTHON_REST_IMAGE}:${PYTHON_REST_VERSION}
@@ -333,7 +351,89 @@ services:
       - elastic_ca_certs_path=${ELASTIC_CA_CERTS_PATH}
       - ATLAS_SERVER_URL=${ATLAS_SERVER_URL}
       # - RESTAPI_ADDITIONAL_CONTEXT=atlas
-      
+
+  kafka-connect:
+    image: ${KAFKA_CONNECT_IMAGE}:${KAFKA_CONNECT_VERSION}
+    container_name: kafka-connect
+    depends_on:
+      - enterprisesearch
+      - broker
+    user: "0"
+    volumes:
+      - certs:/home/appuser/secret_certs
+      - ./kafka-connect-stack/app_search_documents.json:/etc/conf/app_search_documents.json
+      - ./kafka-connect-stack/publish_state.json:/etc/conf/publish_state.json
+      - ./kafka-connect-stack/execute_connectors.sh:/home/appuser/execute_connectors.sh
+    environment:
+      - CONNECT_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP}
+      - CONNECT_REST_ADVERTISED_HOST_NAME=${CONNECT_REST_ADVERTISED_HOST_NAME}
+      - CONNECT_REST_PORT=${CONNECT_REST_PORT}
+      - CONNECT_GROUP_ID=${CONNECT_GROUP_ID}
+      - CONNECT_CONFIG_STORAGE_TOPIC=kafka-connect-configs
+      - CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR=1
+      - CONNECT_CONFIG_STORAGE_CLEANUP_POLICY=compact
+      - CONNECT_OFFSET_STORAGE_TOPIC=kafka-connect-offsets
+      - CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR=1
+      - CONNECT_OFFSET_STORAGE_CLEANUP_POLICY=compact
+      - CONNECT_STATUS_STORAGE_TOPIC=kafka-connect-status
+      - CONNECT_STATUS_STORAGE_REPLICATION_FACTOR=1
+      - CONNECT_STATUS_STORAGE_CLEANUP_POLICY=compact
+      - CONNECT_KEY_CONVERTER=org.apache.kafka.connect.storage.StringConverter
+      - CONNECT_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE="false"
+      - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE="false"
+      - KAFKA_HEAP_OPTS=-Xms512M -Xmx512M
+      - elastic_password=${ELASTIC_PASSWORD}
+      - CONNECT_LOG4J_ROOT_LOGLEVEL=INFO
+    command: /bin/bash -c "/etc/confluent/docker/run 2>&1 & /home/appuser/execute_connectors.sh && tail -f /dev/null"
+
+  post-install:
+    image: ${POST_INSTALL_IMAGE}:${POST_INSTALL_VERSION}
+    container_name: post-install
+    restart: "no"
+    depends_on:
+      - jobmanager
+      - taskmanager
+    volumes:
+      - certs:/opt/flink/certs
+    user: "0"
+    environment:
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+      - KEYCLOAK_ATLAS_ADMIN_PASSWORD=${KEYCLOAK_ATLAS_PASSWORD}
+      - KEYCLOAK_SERVER_URL=${KEYCLOAK_SERVER_URL}
+      - ATLAS_SERVER_URL=http://$EXTERNAL_HOST:21000/api/atlas
+      - ELASTIC_URL=${ELASTIC_HOST}
+      - ENTERPRISE_SEARCH_URL=http://enterprisesearch:3002/
+      - JOBMANAGER_URL=${JOBMANAGER_URL}
+      - UPLOAD_DATA=${UPLOAD_DATA}
+      - ELASTICSEARCH_ENDPOINT=${ELASTIC_HOST}
+      - KEYCLOAK_USERNAME=atlas
+      - KEYCLOAK_PASSWORD=atlas
+      - KEYCLOAK_ATLAS_USER_USERNAME=atlas
+      - KEYCLOAK_ATLAS_USER_PASSWORD=atlas
+      - ENTERPRISE_SEARCH_EXTERNAL_URL=${ENTERPRISE_SEARCH_EXTERNAL_URL}
+      - ATLAS_EXTERNAL_URL=http://$EXTERNAL_HOST:21000/api/atlas
+      - KEYCLOAK_CLIENT_ID=m4i_atlas
+      - KEYCLOAK_REALM_NAME=m4i
+      - ELASTIC_CERTIFICATE_PATH=${ELASTICSEARCH_CERTIFICATE_PATH}
+      - ELASTICSEARCH_APP_SEARCH_INDEX_NAME=.ent-search-engine-documents-atlas-dev
+      - ELASTICSEARCH_STATE_INDEX_NAME=publish_state
+      - KAFKA_APP_SEARCH_TOPIC_NAME=.ent-search-engine-documents-atlas-dev
+      - KAFKA_PUBLISH_STATE_TOPIC_NAME=publish_state
+      - KAFKA_BOOTSTRAP_SERVER_HOSTNAME=broker
+      - KAFKA_BOOTSTRAP_SERVER_PORT=9092
+      - KAFKA_CONSUMER_GROUP_ID="SYNCHRONIZE_APP_SEARCH_CONSUMER"
+      - KAFKA_PRODUCER_GROUP_ID="SYNCHRONIZE_APP_SEARCH_PRODUCER"
+      - KAFKA_ERROR_TOPIC_NAME=DEAD_LETTER_BOX
+      - KAFKA_SOURCE_TOPIC_NAME=ATLAS_ENTITIES
+      - ELASTICSEARCH_USERNAME=${ELASTIC_USERNAME}
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTICSEARCH_CERTIFICATE_PATH=${ELASTICSEARCH_CERTIFICATE_PATH}
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "python -m pip install --no-cache-dir -r requirements.txt && ./run.sh"
+
 volumes:
   reverse-proxy:
     driver: local

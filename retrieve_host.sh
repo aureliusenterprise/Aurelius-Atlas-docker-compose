@@ -11,9 +11,6 @@ envsubst '$EXTERNAL_HOST' < templates/keycloak/realm_m4i_templates.json > keyclo
 #atlas
 envsubst '$EXTERNAL_HOST' < templates/atlas/keycloak-conf_template.json > atlas-stack/keycloak-conf.json
 
-# flink
-envsubst '$EXTERNAL_HOST' < templates/flink/config_template.py > flink-stack/config.py
-
 # rest-python
 envsubst '$EXTERNAL_HOST' < templates/python-rest/m4i_atlas_config_template.py > rest-python/m4i_atlas_config.py
 envsubst '$EXTERNAL_HOST' < templates/python-rest/m4i_backend_config_template.py > rest-python/m4i_backend_config.py
