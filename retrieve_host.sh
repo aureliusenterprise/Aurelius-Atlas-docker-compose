@@ -1,7 +1,6 @@
 #!/usr/bin/bash
 
 # Set mount script permissions
-chmod 777 enterprise-search-stack/add_setting.sh
 chmod 777 kafka-connect-stack/execute_connectors.sh
 
 # reverse-proxy 
