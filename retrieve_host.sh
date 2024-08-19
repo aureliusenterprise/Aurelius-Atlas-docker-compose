@@ -1,5 +1,9 @@
 #!/usr/bin/bash
 
+# Set mount script permissions
+chmod 777 enterprise-search-stack/add_setting.sh
+chmod 777 kafka-connect-stack/execute_connectors.sh
+
 # reverse-proxy 
 envsubst '$EXTERNAL_HOST' < templates/reverse-proxy/atlas_template.conf > reverse-proxy-files/config.d/atlas.conf
 envsubst '$EXTERNAL_HOST' < templates/reverse-proxy/atlas2_template.conf > reverse-proxy-files/config.d/atlas2.conf

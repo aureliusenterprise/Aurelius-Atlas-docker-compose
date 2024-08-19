@@ -246,7 +246,6 @@ services:
     volumes:
       - certs:/usr/share/enterprise-search/config/certs
       - enterprisesearchdata:/usr/share/enterprise-search/config
-      - ./enterprise-search-stack/add_setting.sh:/usr/share/enterprise-search/config/add_setting.sh
     ports:
       - ${ENTERPRISE_SEARCH_PORT}:3002
     environment:
@@ -259,6 +258,7 @@ services:
       - elasticsearch.ssl.enabled=true
       - elasticsearch.ssl.certificate_authority=/usr/share/enterprise-search/config/certs/ca/ca.crt
       - kibana.external_url=http://kibana:5601
+      - app_search.engine.total_fields.limit=96
     #mem_limit: ${MEM_LIMIT}
     healthcheck:
       test:
@@ -269,12 +269,6 @@ services:
       interval: 10s
       timeout: 10s
       retries: 120
-    entrypoint: ["bash", "-c"]
-    command: >
-      '
-      /usr/share/enterprise-search/config/add_setting.sh;
-      /usr/local/bin/docker-entrypoint.sh
-      '
 
   jobmanager:
     image: ${FLINK_IMAGE}:${FLINK_VERSION}
